@@ -18,7 +18,7 @@ export const CurrentUser = createParamDecorator(
 
     if (roles.length > 0) {
       if (!roles.some((role) => user.roles.includes(role))) {
-        throw new ForbiddenException(`Need a valid role`);
+        throw new ForbiddenException(`${user.fullName} need a valid role`);
       }
     }
 
