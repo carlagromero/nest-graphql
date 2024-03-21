@@ -11,6 +11,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hashSync } from 'bcrypt';
 import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
+import { UpdateUserInput } from './dto/update-user.input';
 
 @Injectable()
 export class UsersService {
@@ -68,9 +69,23 @@ export class UsersService {
     }
   }
 
-  // update(id: number, updateUserInput: UpdateUserInput) {
-  //   return `This action updates a #${id} user`;
-  // }
+  async update(
+    id: string,
+    updateUserInput: UpdateUserInput,
+    updateBy: User,
+  ): Promise<User> {
+    const userToUpdate = await this.usersRepository.preload({
+      ...updateUserInput,
+      id,
+    });
+
+    if (!userToUpdate)
+      throw new NotFoundException(`User with id ${id} not found`);
+
+    userToUpdate.lastUpdateBy = updateBy;
+
+    return await this.usersRepository.save(userToUpdate);
+  }
 
   async block(id: string, user: User): Promise<User> {
     const userToBlock = await this.findOneById(id);
